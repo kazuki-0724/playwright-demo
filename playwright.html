@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playwrightテスト自動化 要件定義書</title>
+    <style>
+        /* 事務的でクリーンなデザインのCSS */
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 40px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-size: 18px;
+            color: #444;
+            border-left: 5px solid #555;
+            padding-left: 10px;
+            margin-top: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        h3 {
+            font-size: 16px;
+            color: #555;
+            margin-top: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        ul, ol {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            font-size: 14px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .document-info {
+            float: right;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 12px;
+        }
+        .document-info th, .document-info td {
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+        }
+        .document-info th {
+            background-color: #eee;
+            text-align: left;
+        }
+        table.standard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        table.standard-table th, table.standard-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        table.standard-table th {
+            background-color: #f0f0f0;
+            width: 25%;
+        }
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Playwrightテスト自動化 要件定義書</h1>
+
+    <div class="clearfix">
+        <table class="document-info">
+            <tr>
+                <th>作成日</th>
+                <td>2026年6月17日</td>
+            </tr>
+            <tr>
+                <th>ステータス</th>
+                <td>ドラフト</td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>1. 目的</h2>
+    <p>
+        本ドキュメントは、PlaywrightおよびMCP（Model Context Protocol）を活用したE2E（End to End）テストの自動化推進において、安定性・保守性・AIのコード生成効率（トークン効率）を最大化するための開発方針とプロセスを定義するものである。<br>
+        AIによるハルシネーション（存在しない要素の指定等）を防止し、確実なテスト運用を実現するため、<strong>「POM（Page Object Model）事前構築＋MCP検証アプローチ」</strong>を採用する。
+    </p>
+
+    <h2>2. 前提条件・共通資産</h2>
+    <p>テストコード自動生成の土台として、以下の共通資産を事前に定義・整備するものとする。</p>
+    <table class="standard-table">
+        <tr>
+            <th>ログイン処理・TOP遷移</th>
+            <td>テスト実行前に必須となる認証フロー（ログインからTOP画面描画完了までの待機処理含む）を共通メソッドとして整備する。</td>
+        </tr>
+        <tr>
+            <th>よく使う導線</th>
+            <td>メニュー遷移、検索、登録など、複数テストで頻繁に使用される標準的な操作フローを共通化する。</td>
+        </tr>
+        <tr>
+            <th>画面名・URLマッピング</th>
+            <td>各画面の論理名と実際のURL（またはパス）を紐づけたマッピングファイルを用意し、AIが画面構成を理解するためのコンテキストとして活用する。</td>
+        </tr>
+    </table>
+
+    <h2>3. 開発プロセス（POMベースアプローチ）</h2>
+    <p>テスト作成は以下のステップに従って実施する。</p>
+
+    <h3>フェーズ1：POM（Page Object Model）の拡充</h3>
+    <ol>
+        <li>画面名とURLのマッピングファイルを基に、対象画面のロケータ（要素指定）および画面固有のアクションを定義したPOMクラスを作成する。</li>
+        <li>前項「2. 共通資産」で定義した標準操作をPOMに組み込み、部品化する。</li>
+        <li><em>※ ここでは具体的なテストシナリオは書かず、画面の「操作手順書」作りに専念する。</em></li>
+    </ol>
+
+    <h3>フェーズ2：AIによるテストコード生成</h3>
+    <ol>
+        <li>「フォーマット.md（テストの作業内容・シナリオ）」と、フェーズ1で作成した「POMのメソッド一覧（インターフェース情報）」をAIへのインプットとする。</li>
+        <li>AIに対して<strong>「提供したPOMのメソッドを組み合わせて、指定のテストシナリオをPlaywrightコードとして実装すること」</strong>を指示する。</li>
+    </ol>
+
+    <h3>フェーズ3：MCPによる検証と実行</h3>
+    <ol>
+        <li>生成されたテストコードをMCP環境に連携する。</li>
+        <li>MCPが持つ標準機能を活用し、テストを対象環境に対して実行・検証する。</li>
+        <li>実行時のログやエラー（要素が見つからない、待機タイムアウト等）を収集する。</li>
+    </ol>
+
+    <h3>フェーズ4：コードの清書とフィードバック</h3>
+    <ol>
+        <li>フェーズ3の検証でエラーが検出された場合、MCP経由でAIにエラーログを渡し、自己修復（コードの清書・修正）を実施させる。</li>
+        <li>修正がPOM側に起因する場合はPOMを更新し、テストロジック側にある場合はテストコードのみを修正する。</li>
+        <li>テストが安定してPassする状態をもって、テストスクリプトの完成とする。</li>
+    </ol>
+
+    <h2>4. 本方針採用の期待効果（評価）</h2>
+    <table class="standard-table">
+        <tr>
+            <th>トークン効率（高）</th>
+            <td>AIに都度DOM構造を読み込ませる必要がなく、「どのPOMメソッドを呼ぶか」の指示のみで済むため、プロンプトの消費トークンを大幅に削減できる。</td>
+        </tr>
+        <tr>
+            <th>コードの精度（高）</th>
+            <td>脆い要素（セレクタ）の特定処理がPOMにカプセル化されているため、AIが誤ったロケータを推測して生成するリスクを排除できる。</td>
+        </tr>
+        <tr>
+            <th>保守性・運用性（高）</th>
+            <td>UIの変更が発生した際、テストシナリオ側は修正せず、該当するPOMのロケータを1箇所修正するだけで全テストの修復が完了する。</td>
+        </tr>
+    </table>
+
+</div>
+
+</body>
+</html>

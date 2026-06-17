@@ -1,0 +1,12 @@
+01_open_home.png
+02_input_username.png
+03_input_password.png
+04_click_login.png
+05_add_backpack.png
+06_open_cart.png
+07_click_checkout.png
+08_input_firstname.png
+09_input_lastname.png
+10_input_postalcode.png
+11_click_continue.png
+12_click_finish_complete.png
