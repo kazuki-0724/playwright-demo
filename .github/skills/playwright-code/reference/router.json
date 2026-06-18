@@ -1,0 +1,101 @@
+{
+  "urlMap": {
+    "screens": [
+      {
+        "id": 1,
+        "name": "ログイン画面",
+        "url": "https://www.saucedemo.com/"
+      },
+      {
+        "id": 2,
+        "name": "TOPページ",
+        "url": "https://www.saucedemo.com/inventory.html"
+      },
+      {
+        "id": 3,
+        "name": "商品詳細",
+        "url": "https://www.saucedemo.com/inventory-item.html?id=N"
+      },
+      {
+        "id": 4,
+        "name": "カゴ画面",
+        "url": "https://www.saucedemo.com/cart.html"
+      },
+      {
+        "id": 5,
+        "name": "注文画面",
+        "url": "https://www.saucedemo.com/checkout-step-one.html"
+      },
+      {
+        "id": 6,
+        "name": "注文確認画面",
+        "url": "https://www.saucedemo.com/checkout-step-two.html"
+      },
+      {
+        "id": 7,
+        "name": "注文完了画面",
+        "url": "https://www.saucedemo.com/checkout-complete.html"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "ログイン画面",
+        "to": "TOPページ"
+      },
+      {
+        "from": "TOPページ",
+        "to": "商品詳細"
+      },
+      {
+        "from": "TOPページ",
+        "to": "カゴ画面"
+      },
+      {
+        "from": "商品詳細",
+        "to": "カゴ画面"
+      },
+      {
+        "from": "カゴ画面",
+        "to": "注文画面"
+      },
+      {
+        "from": "注文画面",
+        "to": "注文確認画面"
+      },
+      {
+        "from": "注文確認画面",
+        "to": "注文完了画面"
+      }
+    ],
+    "header": {
+      "functions": [
+        {
+          "element": "カゴアイコン",
+          "action": "カゴ画面に遷移する"
+        },
+        {
+          "element": "ハンバーガーメニュー",
+          "action": "サイドバーを展開し以下2つのリンクを表示する",
+          "links": [
+            {
+              "label": "All Items",
+              "action": "TOPページに遷移する"
+            },
+            {
+              "label": "Logout",
+              "action": "ログアウトして、ログインページに遷移する"
+            }
+          ]
+        }
+      ],
+      "visibleScreens": [
+        "TOPページ",
+        "商品詳細",
+        "カゴ画面",
+        "注文画面",
+        "注文確認画面",
+        "注文完了画面"
+      ]
+    }
+  }
+}
