@@ -1,3 +1,21 @@
+## Test Execution: test_001.spec.ts (Automated E2E Test)
+
+**実行日時**: 2026-06-18  
+**テストファイル**: test_001.spec.ts  
+**ステータス**: ✓ PASS (1 passed in 2.0s)  
+
+| No | Step | Action | Expected | Actual | Evidence |
+|---:|---|---|---|---|---|
+| 1 | ログイン画面表示 | https://www.saucedemo.com/ にアクセス | ログインフォームが表示される | 表示された ✓ | 001_login-page.png |
+| 2 | ログイン実行 | standard_user / secret_sauce でログイン | TOPページ (/inventory.html) へ遷移 | 遷移完了 ✓ | 002_logged-in.png |
+| 3 | 商品詳細ページ遷移 | Sauce Labs Backpack をクリック | 商品詳細ページ (/inventory-item.html?id=1) へ遷移 | 遷移完了 ✓ | 003_item-detail.png |
+| 4 | カートに追加 | "Add to cart" ボタンをクリック | 商品がカートに追加される | 追加完了 ✓ | 004_added-to-cart.png |
+| 5 | カゴページ遷移 | ヘッダーのカゴアイコンをクリック | カゴページ (/cart.html) へ遷移し商品が表示される | 遷移完了、商品確認 ✓ | 005_cart-page.png |
+
+---
+
+## Manual Test Execution Log (Previous)
+
 | No | Step | Action | Expected | Actual | Evidence |
 |---:|---|---|---|---|---|
 | 1 | Username「standard_user」Password「secret_sauce」でログインする | ログイン画面へ遷移して認証情報を入力しログイン | TOPページ( inventory.html )に遷移する | 成功 | 001_login.png |

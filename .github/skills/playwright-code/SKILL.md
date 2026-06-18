@@ -29,7 +29,9 @@ disable-model-invocation: false
 	- 期待結果
 
 ## 出力
-- テストコード: tests 配下の spec
+- テストコード: tests 配下の spec。ファイル名は「test_NNN.spec.ts」（NNN は 001, 002... の3桁連番）。数字に被りがないようにする。
+  - 例: test_001.spec.ts, test_002.spec.ts
+  - 拡張子は必ず .ts（TypeScript形式）
 - スクリーンショット: screenshots/NNN_<step-key>.png
 - 実行ログ: logs/operation-log.md
 
@@ -38,6 +40,7 @@ disable-model-invocation: false
 - 遷移整合: reference 配下 JSON の URL・主要要素を根拠に待機条件を置く。
 - ステップ単位: 1 ステップ実行ごとに証跡取得・実績記録を行う。
 - 欠落情報の扱い: シナリオに入力値がない場合は推測補完せず、ログ記録して停止する。
+- 言語統一: テストコードは TypeScript（import/export）で実装し、拡張子は .ts で固定。
 
 ## 実行フロー
 1. シナリオを読み取り、実行可能な最小ステップへ分解する。
@@ -78,6 +81,12 @@ disable-model-invocation: false
 - 証跡保存先はワークスペースルート直下の screenshots/ とする。
 - 証跡ファイル名は 3 桁連番（例: 001_open-login.png）で管理する。
 - 画面状態が変わる操作後は、状態確認してから次へ進む。
+
+## 実行コマンド固定値
+- **初回実行**: `npx playwright test --project=chromium`
+  - testDir は playwright.config.js の `./tests` に設定されているため、tests/ 配下のすべての .spec.ts ファイルが対象
+  - 特定のテストのみ実行する場合: `npx playwright test tests/test_001.spec.ts --project=chromium`
+- **失敗時の再実行**: `npx playwright test tests/test_NNN.spec.ts --project=chromium` （失敗したテスト番号の spec ファイルを明示）
 - 失敗時の再実行は最大 1 回とし、無限ループを禁止する。
 
 ## ログ記録フォーマット
