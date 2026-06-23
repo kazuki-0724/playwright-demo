@@ -1,0 +1,16 @@
+# 秘密情報
+.env
+
+# ロックファイル
+*.lock
+package-lock.json
+
+# 自動生成・ビルドファイル
+dist/
+build/
+coverage/
+screenshots/
+
+# バイナリやログ
+*.log
+*.png

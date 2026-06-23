@@ -1,62 +1,98 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { ItemDetailPage } from '../pages/ItemDetailPage';
-import { CartPage } from '../pages/CartPage';
 import { Header } from '../pages/Header';
-import path from 'path';
-import fs from 'fs';
+import { CartPage } from '../pages/CartPage';
+import { CheckOutStepOne } from '../pages/CheckOutStepOne';
+import { CheckOutStepTwo } from '../pages/CheckOutStepTwo';
 
-const screenshotDir = path.join(__dirname, '..', 'screenshots');
+const URLS = {
+  login: 'https://www.saucedemo.com/',
+  inventory: /https:\/\/www\.saucedemo\.com\/inventory\.html$/,
+  itemDetail: /https:\/\/www\.saucedemo\.com\/inventory-item\.html\?id=\d+$/,
+  cart: /https:\/\/www\.saucedemo\.com\/cart\.html$/,
+  checkoutStepOne: /https:\/\/www\.saucedemo\.com\/checkout-step-one\.html$/,
+  checkoutStepTwo: /https:\/\/www\.saucedemo\.com\/checkout-step-two\.html$/,
+  checkoutComplete: /https:\/\/www\.saucedemo\.com\/checkout-complete\.html$/,
+};
 
-test.describe('E2E Test: Add Sauce Labs Backpack to Cart', () => {
-  let loginPage: LoginPage;
-  let inventoryPage: InventoryPage;
-  let itemDetailPage: ItemDetailPage;
-  let cartPage: CartPage;
-  let header: Header;
+async function withElementRetry(page: Page, action: () => Promise<void>) {
+  try {
+    await action();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const isElementNotFound = /locator|strict mode violation|waiting for|element/i.test(message);
+    if (!isElementNotFound) {
+      throw error;
+    }
 
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    inventoryPage = new InventoryPage(page);
-    itemDetailPage = new ItemDetailPage(page);
-    cartPage = new CartPage(page);
-    header = new Header(page);
-  });
+    await page.waitForLoadState('domcontentloaded');
+    await action();
+  }
+}
 
-  test('ユーザが Sauce Labs Backpack をカートに追加し、カートページへ遷移する', async ({ page }) => {
-    // ステップ 1: ログイン画面へアクセス
-    await loginPage.goto();
-    await expect(page).toHaveURL('https://www.saucedemo.com/');
-    await page.screenshot({ path: path.join(screenshotDir, '001_login-page.png') });
-    console.log('✓ Step 1: Login page opened');
+test('scenario.md based order flow', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  const inventoryPage = new InventoryPage(page);
+  const itemDetailPage = new ItemDetailPage(page);
+  const header = new Header(page);
+  const cartPage = new CartPage(page);
+  const checkoutStepOne = new CheckOutStepOne(page);
+  const checkoutStepTwo = new CheckOutStepTwo(page);
 
-    // ステップ 2: ログイン処理
+  await loginPage.goto();
+  await expect(page).toHaveURL(URLS.login);
+
+  // Step 1: ログインする
+  await withElementRetry(page, async () => {
     await loginPage.login('standard_user', 'secret_sauce');
-    await page.waitForURL('https://www.saucedemo.com/inventory.html');
-    await page.screenshot({ path: path.join(screenshotDir, '002_logged-in.png') });
-    console.log('✓ Step 2: Logged in successfully');
-
-    // ステップ 3: Sauce Labs Backpack の商品ページへ遷移
-    await inventoryPage.goItemDetailPage('Sauce Labs Backpack');
-    await page.waitForURL(/inventory-item\.html\?id=\d+/);
-    await page.screenshot({ path: path.join(screenshotDir, '003_item-detail.png') });
-    console.log('✓ Step 3: Navigated to Backpack detail page');
-
-    // ステップ 4: Backpack をカートに追加
-    await itemDetailPage.addToCart();
-    await page.screenshot({ path: path.join(screenshotDir, '004_added-to-cart.png') });
-    console.log('✓ Step 4: Backpack added to cart');
-
-    // ステップ 5: カゴページへ遷移
-    await header.goToCartPage();
-    await page.waitForURL('https://www.saucedemo.com/cart.html');
-    await page.screenshot({ path: path.join(screenshotDir, '005_cart-page.png') });
-    console.log('✓ Step 5: Navigated to cart page');
-
-    // 最終検証: Backpack がカートに入っていることを確認
-    const cartItems = await page.locator('.cart_item').count();
-    expect(cartItems).toBeGreaterThan(0);
-    console.log('✓ Verification: Backpack is in the cart');
   });
+  await expect(page).toHaveURL(URLS.inventory);
+  await page.screenshot({ path: 'screenshots/001_step1-login.png', fullPage: true });
+
+  // Step 2: 商品ページへ遷移する
+  await withElementRetry(page, async () => {
+    await inventoryPage.goItemDetailPage('Sauce Labs Backpack');
+  });
+  await expect(page).toHaveURL(URLS.itemDetail);
+  await page.screenshot({ path: 'screenshots/001_step2-item-detail.png', fullPage: true });
+
+  // Step 3: カゴに追加する
+  await withElementRetry(page, async () => {
+    await itemDetailPage.addToCart();
+  });
+  await expect(page.getByRole('button', { name: 'Remove' })).toBeVisible();
+  await page.screenshot({ path: 'screenshots/001_step3-add-to-cart.png', fullPage: true });
+
+  // Step 4: カゴページへ遷移する
+  await withElementRetry(page, async () => {
+    await header.goToCartPage();
+  });
+  await expect(page).toHaveURL(URLS.cart);
+  await expect(page.getByText('Sauce Labs Backpack', { exact: true })).toBeVisible();
+  await page.screenshot({ path: 'screenshots/001_step4-go-cart.png', fullPage: true });
+
+  // Step 5: チェックアウトする
+  await withElementRetry(page, async () => {
+    await cartPage.goToCheckout();
+  });
+  await expect(page).toHaveURL(URLS.checkoutStepOne);
+  await page.screenshot({ path: 'screenshots/001_step5-checkout.png', fullPage: true });
+
+  // Step 6: 情報入力して continue
+  await withElementRetry(page, async () => {
+    await checkoutStepOne.fillCheckoutInformation('山田', '太郎', '123-4567');
+    await checkoutStepOne.continue();
+  });
+  await expect(page).toHaveURL(URLS.checkoutStepTwo);
+  await page.screenshot({ path: 'screenshots/001_step6-fill-continue.png', fullPage: true });
+
+  // Step 7: 注文を完了する
+  await withElementRetry(page, async () => {
+    await checkoutStepTwo.finish();
+  });
+  await expect(page).toHaveURL(URLS.checkoutComplete);
+  await expect(page.getByText('Thank you for your order!', { exact: true })).toBeVisible();
+  await page.screenshot({ path: 'screenshots/001_step7-finish.png', fullPage: true });
 });

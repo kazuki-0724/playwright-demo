@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "description": "このドキュメントは、Windows 環境で Playwright CLI を導入し、テスト実行まで確認する手順をまとめたものです。",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test:chromium:lite": "npx playwright test --project=chromium --reporter=line",
+    "test:spec:lite": "npx playwright test --project=chromium --reporter=line",
+    "test:spec:json": "node scripts/run-playwright-json.js",
+    "report:fail:summary": "node scripts/summarize-failure.js test-results/last-run.json",
+    "log:step": "node scripts/append-operation-log.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kazuki-0724/playwright-demo.git"
