@@ -1,105 +1,111 @@
-# Playwright CLI 導入手順
+# playwright-demo
 
-## 目的
-このドキュメントは、Windows 環境で Playwright CLI を導入し、テスト実行まで確認する手順をまとめたものです。
+SauceDemo (https://www.saucedemo.com/) を対象にした Playwright E2E テストのサンプルです。  
+Page Object Model (POM) を pages 配下に分離し、tests 配下の spec から再利用する構成です。
 
-## 前提条件
-- Node.js LTS がインストール済み
-- npm が利用可能
-- PowerShell またはコマンドプロンプトが利用可能
+## 前提
 
-バージョン確認:
+- Node.js 18 以上推奨
+- Windows PowerShell 環境では npm.cmd を使う
 
-```bash
-node -v
-npm -v
+## セットアップ
+
+1. 依存関係をインストール
+   npm.cmd install
+2. Playwright ブラウザをインストール
+   npx playwright install
+
+## SKILLによるテストコード生成
+
+以下のように「/playwright-code」でSKILLを利用することでテストコードを生成できる。
+
+### プロンプト
+
+```md
+/playwright-code scenario.mdに基づいてテストコードを生成して
 ```
 
-## パターンA: 新規プロジェクトとして導入（推奨）
-1. 作業フォルダへ移動します。
-2. 次のコマンドを実行します。
+入力として提供するMDは以下のようなものとする。
+「どの画面」で「何をする」のかを明確に記載する。
 
-```bash
-npm init playwright@latest
+### scenario.md
+
+```md
+1. ログインページにアクセスしてUsername「standard_user」Password「secret_sauce」でログインする
+2. TOPページから「Sauce Labs Backpack」の商品ページに遷移する
+3. 商品詳細ページで「Sauce Labs Backpack」をカゴに追加する
+4. TOPページに遷移する
+5. TOPページで「Sauce Labs Bike Light」をカゴ追加する
+6. カゴページに遷移する
+7. カゴ画面でチェックアウトする
+8. 名前と「山田太郎」住所を「123-4567」で入力し、continueする
+9. 注文を完了する
 ```
 
-3. 対話プロンプトに回答します。
-- TypeScript/JavaScript の選択
-- テスト配置先
-- GitHub Actions 設定の要否
-- ブラウザダウンロードの要否
+### 補足
 
-4. ブラウザが未インストールの場合は次を実行します。
+- SKILLは`pages`配下のPOMと、`reference`配下の`router.json` `spec-template.ts`を利用する。
+- `router.json`に画面遷移の依存関係を記載しており、その依存関係を利用する。
 
-```bash
-npx playwright install
-```
+## テスト実行
 
-5. サンプルテストを実行して動作確認します。
+package.json の scripts は以下を定義しています。
 
-```bash
-npx playwright test
-```
+- test:chromium:lite
+  - Chromium で全 spec 実行（line reporter）
+- test:spec:lite
+  - 対象 spec を指定して実行（line reporter）
 
-## パターンB: 既存プロジェクトへ追加
-1. プロジェクトルートで Playwright Test を開発依存に追加します。
+実行例:
 
-```bash
-npm install -D @playwright/test
-```
+- 全体（Chromium）
+  `npm.cmd run test:chromium:lite`
+- 単体 spec（例: test_002）
+  `npm.cmd run test:spec:lite -- tests/test_002.spec.ts`
+- テスト一覧だけ確認
+  `npm.cmd run test:spec:lite -- tests/test_002.spec.ts --list`
+- 直接コマンド実行
+  `npx playwright test tests/test_001.spec.ts`
 
-2. ブラウザをインストールします。
+## レポートと証跡
 
-```bash
-npx playwright install
-```
+- HTML レポート: playwright-report/index.html
+- 失敗時の出力: test-results/
+- 手動保存した証跡画像: screenshots/
 
-3. 初期設定ファイルとサンプルを生成します。
+playwright.config.js では以下を有効化しています。
 
-```bash
-npx playwright test --init
-```
+- trace: on
+- screenshot: on
+- projects: chromium / firefox / webkit / Mobile Chrome / Mobile Safari
 
-4. テストを実行します。
+## ディレクトリ構成（主要）
 
-```bash
-npx playwright test
-```
+- tests/
+  - test_001.spec.ts
+  - test_002.spec.ts
+- pages/
+  - LoginPage.ts
+  - InventoryPage.ts
+  - ItemDetailPage.ts
+  - Header.ts
+  - CartPage.ts
+  - CheckOutStepOne.ts
+  - CheckOutStepTwo.ts
+- reference/
+  - router.json
+  - spec-template.ts
 
-## よく使う CLI コマンド
+## テスト追加ルール
 
-```bash
-# 通常実行
-npx playwright test
+- 新規 spec は tests/test_NNN.spec.ts 形式で作成（NNN は 3 桁連番）
+- 画面操作は可能な限り pages 配下の POM を利用
+- URL 遷移や画面到達の検証は reference/router.json を根拠に実施
+- 証跡画像は screenshots/NNN_step-key.png の命名で保存
 
-# UI モードで実行
-npx playwright test --ui
+## よく使う補助コマンド
 
-# 失敗時のHTMLレポート表示
-npx playwright show-report
-
-# 操作を記録してテストコード生成
-npx playwright codegen https://example.com
-```
-
-## トラブルシュート
-- `npx playwright: command not found`:
-  - Node.js と npm のインストール状態、PATH を確認してください。
-- ブラウザ起動エラー:
-  - 次を再実行してください。
-
-```bash
-npx playwright install
-```
-
-- 依存ライブラリの不整合:
-  - 依存を再インストールしてください。
-
-```bash
-npm ci
-```
-
-## 補足
-Playwright CLI は `npx playwright ...` 形式で実行するのが基本です。グローバルインストールは通常不要です。
-
-npx playwright test tests/test_001.spec.ts
+- TypeScript の型エラー確認（必要時）
+  `npx tsc --noEmit`
+- HTML レポートを開く
+  `npx playwright show-report`

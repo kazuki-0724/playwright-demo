@@ -1,4 +1,3 @@
-
 # ステップ
 
 1. ログインページにアクセスしてUsername「standard_user」Password「secret_sauce」でログインする
