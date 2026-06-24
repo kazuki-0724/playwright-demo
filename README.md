@@ -101,3 +101,5 @@ npm ci
 
 ## 補足
 Playwright CLI は `npx playwright ...` 形式で実行するのが基本です。グローバルインストールは通常不要です。
+
+npx playwright test tests/test_001.spec.ts
