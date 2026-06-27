@@ -1,4 +1,9 @@
-# ステップ
+# Playwright シナリオ
+
+## 目的
+SauceDemo 向け E2E の実行手順を番号付きで定義する。
+
+## ステップ
 
 1. ログインページにアクセスしてUsername「standard_user」Password「secret_sauce」でログインする
 2. TOPページから「Sauce Labs Backpack」の商品ページに遷移する

@@ -4,6 +4,7 @@
   "description": "このドキュメントは、Windows 環境で Playwright CLI を導入し、テスト実行まで確認する手順をまとめたものです。",
   "main": "index.js",
   "scripts": {
+    "codegen:saucedemo": "npx playwright codegen https://www.saucedemo.com/",
     "test:chromium:lite": "npx playwright test --project=chromium --reporter=line",
     "test:spec:lite": "npx playwright test --project=chromium --reporter=line"
   },
